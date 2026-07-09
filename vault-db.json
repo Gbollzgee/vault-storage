@@ -66,6 +66,12 @@
       "createdAt": 1783585688851
     }
   ],
-  "folders": [],
+  "folders": [
+    {
+      "id": "folder_1783586811387",
+      "name": "Audio",
+      "createdAt": 1783586811387
+    }
+  ],
   "notes": []
 }
