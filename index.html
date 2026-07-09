@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>My Private Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ── DESIGN TOKENS ── */
+:root{
+  --bg:#07080d; --surface:#11121a; --surface2:#1a1b26; --border:#252636;
+  --gold:#c9a84c; --gold2:#e8c96a; --text:#e8e8f0; --muted:#5a5a7a;
+  --danger:#e05555; --success:#4caf7d; --radius:14px;
+  --shadow:0 8px 40px rgba(0,0,0,0.6);
+}
+
+/* ── RESET ── */
+*{margin:0;padding:0;box-sizing:border-box;}
+html{height:100%;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;overflow:hidden;
+  position:relative;
+}
+
+/* GRAIN */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+  opacity:0.45;
+}
+
+/* ══ LAMP / LOGIN ROOM ══ */
+#room{
+  position:fixed;inset:0;display:flex;align-items:stretch;z-index:0;
+  transition:background 1s ease;
+}
+#room.light-off{
+  background:
+    radial-gradient(ellipse at 50% -10%,#0e0f1a 0%,#07080d 60%),
+    radial-gradient(ellipse at 20% 80%,#09090f 0%,#07080d 100%);
+}
+#room.light-on{
+  background:radial-gradient(ellipse at 38% -5%,#211900 0%,#100e1a 45%,#07080d 100%);
+}
+
+#light-cone{
+  position:fixed;left:calc(21% - 10px);top:148px;
+  width:280px;height:75vh;
+  background:linear-gradient(to bottom,
+    rgba(255,185,65,0.22) 0%,rgba(255,165,45,0.10) 40%,
+    rgba(255,150,30,0.03) 75%,transparent 100%);
+  clip-path:polygon(35% 0%,65% 0%,100% 100%,0% 100%);
+  opacity:0;transition:opacity 1.1s ease;
+  pointer-events:none;z-index:1;filter:blur(2px);
+}
+#room.light-on #light-cone{opacity:1;}
+
+#floor-glow{
+  position:fixed;bottom:0;left:calc(21% - 100px);
+  width:360px;height:130px;
+  background:radial-gradient(ellipse at 50% 100%,
+    rgba(255,175,55,0.2) 0%,rgba(255,155,35,0.06) 50%,transparent 100%);
+  opacity:0;transition:opacity 1.1s ease;
+  pointer-events:none;z-index:1;
+}
+#room.light-on #floor-glow{opacity:1;}
+
+/* Lamp structure */
+#lamp-side{
+  position:fixed;left:0;top:0;width:42%;height:100%;
+  display:flex;flex-direction:column;align-items:center;
+  z-index:10;pointer-events:none;
+}
+.lamp-deco{pointer-events:none;}
+.ceiling-wire{width:2px;height:80px;background:linear-gradient(to bottom,#2a2a3a,#1a1a28);}
+.lamp-shade-wrap{position:relative;}
+.lamp-shade{
+  width:110px;height:70px;
+  background:linear-gradient(160deg,#2a2010 0%,#1a1508 40%,#2a1e08 100%);
+  clip-path:polygon(8% 0%,92% 0%,100% 100%,0% 100%);
+  border-radius:0 0 8px 8px;
+  transition:box-shadow 0.8s ease,background 0.8s ease;
+  border-top:2px solid #3a2e10;
+  position:relative;
+}
+#room.light-on .lamp-shade{
+  background:linear-gradient(160deg,#7a5a18 0%,#5a3e10 40%,#6a4a12 100%);
+  box-shadow:0 0 40px 12px rgba(255,180,60,0.45),
+             0 0 80px 30px rgba(255,150,30,0.2),
+             inset 0 -8px 20px rgba(255,200,80,0.3);
+}
+.lamp-shade::after{
+  content:'';position:absolute;bottom:0;left:10%;width:80%;height:8px;
+  background:radial-gradient(ellipse,rgba(255,200,80,0) 0%,transparent 100%);
+  transition:background 0.8s;
+}
+#room.light-on .lamp-shade::after{
+  background:radial-gradient(ellipse,rgba(255,200,80,0.9) 0%,transparent 100%);
+}
+.lamp-neck{
+  width:8px;height:120px;
+  background:linear-gradient(to right,#2a2030,#1a1525,#2a2030);
+  margin:0 auto;border-radius:4px;
+}
+.lamp-base{
+  width:80px;height:16px;
+  background:linear-gradient(to bottom,#252030,#1a1525);
+  border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.5);
+}
+.lamp-base-foot{
+  width:100px;height:10px;
+  background:linear-gradient(to bottom,#1e1a2a,#141020);
+  border-radius:50%;margin-top:2px;
+}
+
+/* Pull cord */
+#cord-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  position:absolute;top:152px;left:calc(50% + 22px);
+  cursor:grab;z-index:20;padding:10px;
+  user-select:none;-webkit-user-select:none;
+  pointer-events:all;
+  touch-action:none;
+}
+#cord-wrap:active{cursor:grabbing;}
+#cord-wrap:hover .cord-ball{
+  box-shadow:0 2px 14px rgba(201,168,76,0.9);
+  transform:scale(1.2);
+}
+.cord-line{
+  width:2px;height:52px;
+  background:linear-gradient(to bottom,#6a5a30,#c9a84c,#8a7a50);
+  border-radius:1px;transform-origin:top center;
+  animation:cord-idle 3s ease-in-out infinite;
+  will-change:height;
+}
+.cord-line.dragging{
+  animation:none;
+  transition:none;
+}
+.cord-line.snapping{
+  animation:none;
+  transition:height 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes cord-idle{
+  0%,100%{transform:rotate(0deg);}
+  50%{transform:rotate(1.5deg);}
+}
+.cord-ball{
+  width:12px;height:12px;
+  background:radial-gradient(circle at 35% 35%,var(--gold2),var(--gold));
+  border-radius:50%;
+  box-shadow:0 2px 8px rgba(201,168,76,0.6);
+  margin-top:2px;
+  transition:box-shadow 0.2s,transform 0.2s;
+  will-change:transform;
+}
+.cord-ball.snapping{
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s ease;
+}
+.cord-swing{
+  animation:cord-swing 0.5s cubic-bezier(0.36,0.07,0.19,0.97) forwards !important;
+}
+@keyframes cord-swing{
+  0%{transform:rotate(0deg);}
+  20%{transform:rotate(-18deg);}
+  45%{transform:rotate(14deg);}
+  65%{transform:rotate(-8deg);}
+  80%{transform:rotate(4deg);}
+  100%{transform:rotate(0deg);}
+}
+
+/* Login card */
+#login-side{
+  position:fixed;right:0;top:0;width:58%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  padding:32px;z-index:10;pointer-events:none;
+}
+.login-card{
+  width:100%;max-width:400px;
+  background:rgba(13,14,22,0.82);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(201,168,76,0.18);border-radius:26px;
+  padding:52px 42px;
+  box-shadow:0 40px 80px rgba(0,0,0,0.7),
+             0 0 0 1px rgba(255,255,255,0.03) inset,
+             0 1px 0 rgba(255,255,255,0.07) inset;
+  transform:translateX(130%) scale(0.88);opacity:0;
+  transition:transform 0.75s cubic-bezier(0.34,1.5,0.64,1),opacity 0.4s ease;
+  text-align:center;position:relative;overflow:hidden;
+  pointer-events:all;
+}
+.login-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),transparent);
+}
+.login-card.visible{transform:translateX(0) scale(1);opacity:1;}
+.vault-icon{
+  width:68px;height:68px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border-radius:18px;display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;font-size:28px;
+  box-shadow:0 8px 32px rgba(201,168,76,0.35);
+}
+.login-card h1{
+  font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;
+  margin-bottom:6px;letter-spacing:-0.02em;
+}
+.login-card h1 span{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.login-card > p{color:var(--muted);font-size:0.88rem;margin-bottom:32px;}
+.input-wrap{position:relative;margin-bottom:14px;}
+.input-wrap input{
+  width:100%;padding:15px 18px;
+  background:rgba(26,27,38,0.8);
+  border:1.5px solid rgba(201,168,76,0.12);border-radius:12px;
+  color:var(--text);font-size:0.95rem;font-family:'DM Sans',sans-serif;
+  outline:none;transition:border-color 0.25s,box-shadow 0.25s;
+  letter-spacing:0.12em;
+}
+.input-wrap input::placeholder{letter-spacing:0;color:var(--muted);}
+.input-wrap input:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(201,168,76,0.12);
+}
+.btn-login{
+  width:100%;padding:15px;margin-top:8px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border:none;border-radius:12px;
+  color:#08090f;font-size:0.95rem;font-weight:700;
+  font-family:'DM Sans',sans-serif;cursor:pointer;
+  transition:opacity 0.2s,transform 0.15s,box-shadow 0.2s;
+  box-shadow:0 4px 20px rgba(201,168,76,0.3);
+}
+.btn-login:hover{opacity:0.92;transform:translateY(-1px);box-shadow:0 8px 28px rgba(201,168,76,0.4);}
+.btn-login:disabled{opacity:0.45;cursor:not-allowed;transform:none;}
+.login-error{color:var(--danger);font-size:0.82rem;margin-top:12px;display:none;}
+.login-lockout{color:var(--danger);font-size:0.78rem;margin-top:8px;display:none;}
+@keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-6px);}40%,80%{transform:translateX(6px);}}
+
+/* ══ VAULT APP ══ */
+#app{display:none;min-height:100vh;flex-direction:column;}
+@keyframes vaultIn{from{opacity:0;}to{opacity:1;}}
+
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:260px;
+  background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:100;transition:transform 0.3s;
+}
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.sidebar-logo .icon{width:38px;height:38px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.sidebar-logo span{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto;}
+.nav-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);padding:12px 12px 6px;}
+.nav-btn{
+  display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;
+  border:none;background:none;color:var(--muted);
+  font-family:'DM Sans',sans-serif;font-size:0.9rem;
+  cursor:pointer;border-radius:10px;text-align:left;
+  transition:background 0.15s,color 0.15s;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.nav-btn:hover{background:var(--surface2);color:var(--text);}
+.nav-btn.active{background:rgba(201,168,76,0.12);color:var(--gold);}
+.nav-btn .nav-icon{font-size:1rem;flex-shrink:0;}
+.folder-list{padding-left:8px;}
+.folder-item{display:flex;align-items:center;}
+.folder-item .nav-btn{flex:1;}
+.folder-del{background:none;border:none;color:transparent;cursor:pointer;padding:6px;border-radius:6px;font-size:0.8rem;transition:color 0.15s,background 0.15s;}
+.folder-item:hover .folder-del{color:var(--danger);}
+.folder-del:hover{background:rgba(224,85,85,0.1);}
+
+.storage-meter{padding:10px 14px 4px;}
+.storage-label{font-size:0.72rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;}
+.storage-label span:last-child{color:var(--gold);font-weight:600;}
+.storage-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:3px;}
+.storage-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width 0.6s ease;width:0%;}
+.storage-warn{font-size:0.68rem;color:var(--danger);display:none;}
+
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
+.cloud-badge{display:flex;align-items:center;gap:6px;padding:8px 14px;font-size:0.78rem;color:var(--success);background:rgba(76,175,125,0.08);border-radius:8px;margin-bottom:8px;}
+
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(7,8,13,0.88);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:14px 28px;display:flex;align-items:center;gap:16px;
+}
+.topbar-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;flex:1;}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;transition:border-color 0.2s;}
+.search-bar:focus-within{border-color:var(--gold);}
+.search-bar input{background:none;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.9rem;width:160px;min-width:60px;}
+.search-bar input::placeholder{color:var(--muted);}
+.view-toggle{display:flex;gap:4px;background:var(--surface2);border-radius:8px;padding:3px;}
+.view-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:5px 8px;border-radius:6px;font-size:0.95rem;transition:background 0.15s,color 0.15s;}
+.view-btn.active{background:var(--surface);color:var(--gold);}
+
+.search-filters{
+  display:flex;gap:8px;flex-wrap:wrap;padding:10px 28px;
+  background:var(--surface);border-bottom:1px solid var(--border);align-items:center;
+}
+.filter-btn{padding:5px 12px;border-radius:20px;font-size:0.78rem;border:1.5px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.filter-btn:hover,.filter-btn.active{border-color:var(--gold);color:var(--gold);}
+.filter-btn.active{background:rgba(201,168,76,0.12);}
+.filter-select{padding:5px 10px;border-radius:20px;font-size:0.78rem;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s;}
+.filter-select:focus{border-color:var(--gold);}
+.filter-select option{background:var(--surface2);}
+.search-results-label{font-size:0.78rem;color:var(--muted);margin-left:auto;}
+
+.content{padding:28px;flex:1;overflow-y:auto;scroll-behavior:smooth;}
+
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:36px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;margin-bottom:16px;position:relative;}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--gold);background:rgba(201,168,76,0.04);}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.upload-zone .uz-icon{font-size:2.2rem;margin-bottom:8px;}
+.upload-zone h3{font-size:1rem;font-weight:600;margin-bottom:4px;}
+.upload-zone p{color:var(--muted);font-size:0.85rem;}
+
+.upload-progress{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;display:none;}
+.up-top{display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:8px;}
+.up-name{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:72%;}
+.up-pct{color:var(--gold);font-weight:600;}
+.up-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.up-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width 0.15s;width:0%;}
+
+.stats-bar{display:flex;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;flex:1;min-width:110px;}
+.stat-card .sv{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--gold);}
+.stat-card .sl{font-size:0.75rem;color:var(--muted);margin-top:2px;}
+
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.section-header h2{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;}
+.badge{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:2px 10px;font-size:0.78rem;color:var(--muted);}
+
+.items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;}
+.items-list{display:flex;flex-direction:column;gap:8px;}
+
+.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color 0.2s,transform 0.2s,box-shadow 0.2s;position:relative;animation:cardIn 0.3s ease both;}
+@keyframes cardIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+.item-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.4);}
+.item-thumb{width:100%;aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:3rem;overflow:hidden;}
+.item-thumb img{width:100%;height:100%;object-fit:cover;}
+.item-info{padding:12px;}
+.item-name{font-size:0.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+.item-comment{font-size:0.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.item-meta{font-size:0.72rem;color:var(--muted);margin-top:4px;}
+.item-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;opacity:0;transition:opacity 0.15s;}
+.item-card:hover .item-actions{opacity:1;}
+.action-btn{background:rgba(7,8,13,0.88);backdrop-filter:blur(4px);border:1px solid var(--border);border-radius:7px;color:var(--text);cursor:pointer;padding:5px 7px;font-size:0.8rem;transition:background 0.15s,color 0.15s;}
+.action-btn:hover{background:var(--gold);color:#000;}
+.action-btn.del:hover{background:var(--danger);color:#fff;border-color:var(--danger);}
+
+.list-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;gap:14px;padding:12px 16px;cursor:pointer;transition:border-color 0.2s;animation:cardIn 0.3s ease both;}
+.list-item:hover{border-color:var(--gold);}
+.list-thumb{width:48px;height:48px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;overflow:hidden;}
+.list-thumb img{width:100%;height:100%;object-fit:cover;}
+.list-info{flex:1;min-width:0;}
+.list-name{font-size:0.9rem;font-weight:500;}
+.list-comment{font-size:0.8rem;color:var(--muted);}
+.list-meta{font-size:0.75rem;color:var(--muted);white-space:nowrap;}
+.list-acts{display:flex;gap:6px;opacity:0;transition:opacity 0.15s;}
+.list-item:hover .list-acts{opacity:1;}
+
+.folder-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:border-color 0.2s,transform 0.2s;text-align:center;animation:cardIn 0.3s ease both;}
+.folder-card:hover{border-color:var(--gold);transform:translateY(-2px);}
+.folder-card .fi{font-size:2.5rem;margin-bottom:8px;}
+.folder-card h4{font-size:0.9rem;font-weight:500;}
+.folder-card p{font-size:0.78rem;color:var(--muted);margin-top:2px;}
+
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--muted);margin-bottom:20px;flex-wrap:wrap;}
+.breadcrumb span{cursor:pointer;transition:color 0.15s;}
+.breadcrumb span:hover{color:var(--gold);}
+.breadcrumb .sep{color:var(--border);}
+.breadcrumb .cur{color:var(--text);cursor:default;}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-state .ei{font-size:3.5rem;margin-bottom:12px;}
+.empty-state h3{font-size:1rem;font-weight:500;color:var(--text);margin-bottom:4px;}
+.empty-state p{font-size:0.85rem;}
+
+/* Notes */
+.notes-layout{display:grid;grid-template-columns:260px 1fr;gap:20px;height:calc(100vh - 180px);}
+.notes-list{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-y:auto;}
+.note-item{padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;position:relative;}
+.note-item:hover{background:var(--surface2);}
+.note-item.active{background:rgba(201,168,76,0.08);border-left:3px solid var(--gold);}
+.note-item-title{font-size:0.88rem;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.note-item-preview{font-size:0.75rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.note-item-date{font-size:0.7rem;color:var(--muted);margin-top:4px;}
+.note-del-btn{position:absolute;top:10px;right:10px;background:none;border:none;color:transparent;cursor:pointer;font-size:0.8rem;padding:4px;border-radius:4px;transition:color 0.15s,background 0.15s;}
+.note-item:hover .note-del-btn{color:var(--danger);}
+.note-del-btn:hover{background:rgba(224,85,85,0.1);}
+.note-editor{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;overflow:hidden;}
+.note-editor-top{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.note-title-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;}
+.note-title-input::placeholder{color:var(--muted);}
+.note-body-input{flex:1;padding:20px;background:none;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.92rem;line-height:1.7;resize:none;min-height:300px;}
+.note-body-input::placeholder{color:var(--muted);}
+.note-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:0.75rem;color:var(--muted);}
+.notes-empty{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;height:100%;color:var(--muted);}
+.notes-empty .ei{font-size:3rem;}
+.new-note-btn{width:100%;padding:12px;background:rgba(201,168,76,0.08);border:1.5px dashed var(--gold);border-radius:10px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;transition:background 0.15s;margin-bottom:12px;}
+.new-note-btn:hover{background:rgba(201,168,76,0.15);}
+.note-count{font-size:0.72rem;color:var(--muted);text-align:center;padding:8px;}
+
+/* Modals */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal-hidden{display:none;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:slideUp 0.25s ease;box-shadow:var(--shadow);}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-header{padding:24px 24px 0;display:flex;align-items:center;justify-content:space-between;}
+.modal-header h3{font-family:'Playfair Display',serif;font-size:1.3rem;}
+.modal-close{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;padding:6px 10px;font-size:1rem;transition:color 0.15s;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:20px 24px 24px;}
+.modal-img{width:100%;border-radius:var(--radius);max-height:320px;object-fit:contain;background:var(--surface2);margin-bottom:16px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:6px;}
+.form-group input,.form-group textarea,.form-group select{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:12px 14px;outline:none;transition:border-color 0.2s;resize:vertical;}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--gold);}
+.form-group select option{background:var(--surface2);}
+.btn{padding:11px 20px;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;border:none;transition:opacity 0.2s,transform 0.15s;}
+.btn:hover{opacity:0.88;transform:translateY(-1px);}
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;}
+.btn-ghost{background:var(--surface2);border:1.5px solid var(--border);color:var(--text);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;z-index:9000;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 18px;font-size:0.88rem;box-shadow:var(--shadow);animation:toastIn 0.3s ease;max-width:300px;}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+
+/* Mobile */
+.mobile-menu-btn{display:none;background:none;border:none;color:var(--text);cursor:pointer;font-size:1.3rem;}
+@media(max-width:768px){
+  .mobile-menu-btn{display:flex;}
+  #lamp-side{width:38%;}
+  #login-side{width:62%;}
+  .login-card{padding:36px 24px;}
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .items-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
+  .search-bar input{width:80px;}
+  .topbar{padding:12px 16px;gap:10px;}
+  .content{padding:16px;}
+  .notes-layout{grid-template-columns:1fr;height:auto;}
+  .search-filters{padding:10px 16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LAMP LOGIN ROOM ══ -->
+<div id="room" class="light-off" role="region" aria-label="Vault entrance">
+  <div id="light-cone" aria-hidden="true"></div>
+  <div id="floor-glow" aria-hidden="true"></div>
+
+  <div id="lamp-side">
+    <!-- FIX #5: aria-hidden on individual decorative elements, NOT the wrapper -->
+    <!-- This prevents keyboard focus being trapped inside an aria-hidden parent -->
+    <div class="ceiling-wire lamp-deco" aria-hidden="true"></div>
+    <div class="lamp-shade-wrap lamp-deco" aria-hidden="true">
+      <div class="lamp-shade"></div>
+    </div>
+    <div class="lamp-neck lamp-deco"     aria-hidden="true"></div>
+    <div class="lamp-base lamp-deco"     aria-hidden="true"></div>
+    <div class="lamp-base-foot lamp-deco" aria-hidden="true"></div>
+
+    <!-- Cord: pointer-events handled in JS only — no onclick attribute -->
+    <div id="cord-wrap" role="button" aria-label="Pull cord to unlock vault" tabindex="0">
+      <div class="cord-line" id="cord-line"></div>
+      <div class="cord-ball" id="cord-ball"></div>
+    </div>
+  </div>
+
+  <div id="login-side">
+    <div class="login-card" id="login-card" role="dialog" aria-label="Sign in to vault">
+      <div class="vault-icon" aria-hidden="true">🔐</div>
+      <h1><span>Welcome</span></h1>
+      <p>Your private vault awaits</p>
+      <div class="input-wrap">
+        <input
+          type="password"
+          id="pw-input"
+          placeholder="Enter password…"
+          autocomplete="off"
+          maxlength="32"
+          aria-label="Password"
+        />
+      </div>
+      <button class="btn-login" id="btn-signin" onclick="window.tryLogin()">Sign In</button>
+      <div class="login-error"   id="login-err"></div>
+      <div class="login-lockout" id="login-lockout"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VAULT APP ══ -->
+<div id="app" role="application" aria-label="My Private Vault">
+  <div class="sidebar" id="sidebar" role="navigation" aria-label="Vault navigation">
+    <div class="sidebar-logo">
+      <div class="icon" aria-hidden="true">🔐</div>
+      <span>My Vault</span>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-label">Library</div>
+      <button class="nav-btn active" id="nav-all"    onclick="navigate('all')">   <span class="nav-icon" aria-hidden="true">🏠</span> All Files</button>
+      <button class="nav-btn"        id="nav-photos" onclick="navigate('photos')"><span class="nav-icon" aria-hidden="true">🖼️</span> Photos</button>
+      <button class="nav-btn"        id="nav-videos" onclick="navigate('videos')"><span class="nav-icon" aria-hidden="true">🎬</span> Videos</button>
+      <button class="nav-btn"        id="nav-docs"   onclick="navigate('docs')">  <span class="nav-icon" aria-hidden="true">📄</span> Documents</button>
+      <button class="nav-btn"        id="nav-other"  onclick="navigate('other')"> <span class="nav-icon" aria-hidden="true">📦</span> Other</button>
+      <button class="nav-btn"        id="nav-notes"  onclick="navigate('notes')"> <span class="nav-icon" aria-hidden="true">📝</span> Notes</button>
+      <div class="nav-label" style="margin-top:8px;">Folders</div>
+      <div class="folder-list" id="folder-nav-list" role="list"></div>
+      <button class="nav-btn" onclick="showNewFolderModal()" style="margin-top:4px;">
+        <span class="nav-icon" aria-hidden="true">➕</span> New Folder
+      </button>
+    </div>
+    <div class="storage-meter" aria-label="Storage usage">
+      <div class="storage-label">
+        <span>GitHub Storage</span>
+        <span id="storage-used-text" aria-live="polite">—</span>
+      </div>
+      <div class="storage-bar" role="progressbar" aria-label="Storage used" aria-valuemin="0" aria-valuemax="100">
+        <div class="storage-fill" id="storage-fill"></div>
+      </div>
+      <div class="storage-warn" id="storage-warn" role="alert">⚠️ Approaching 1 GB limit!</div>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="cloud-badge" aria-label="Sync status">⬡ Synced with GitHub</div>
+      <button class="nav-btn" onclick="logout()">
+        <span class="nav-icon" aria-hidden="true">🚪</span> Lock Vault
+      </button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">☰</button>
+      <div class="topbar-title" id="page-title">All Files</div>
+      <div class="search-bar" role="search">
+        <span aria-hidden="true">🔍</span>
+        <input type="text" id="search-input" placeholder="Search…" oninput="renderContent()" aria-label="Search files"/>
+      </div>
+      <div class="view-toggle" role="group" aria-label="View mode">
+        <button class="view-btn active" id="vb-grid" onclick="setView('grid')" aria-label="Grid view"  title="Grid view">⊞</button>
+        <button class="view-btn"        id="vb-list" onclick="setView('list')" aria-label="List view"  title="List view">☰</button>
+      </div>
+    </div>
+
+    <div class="search-filters" id="filter-bar" style="display:none;" role="toolbar" aria-label="File filters">
+      <button class="filter-btn active" data-filter="all"   onclick="setTypeFilter('all',   this)">All Types</button>
+      <button class="filter-btn"        data-filter="photo" onclick="setTypeFilter('photo', this)">🖼️ Photos</button>
+      <button class="filter-btn"        data-filter="video" onclick="setTypeFilter('video', this)">🎬 Videos</button>
+      <button class="filter-btn"        data-filter="doc"   onclick="setTypeFilter('doc',   this)">📄 Docs</button>
+      <select class="filter-select" id="folder-filter" onchange="setFolderFilter(this.value)" aria-label="Filter by folder">
+        <option value="">All Folders</option>
+      </select>
+      <select class="filter-select" id="sort-filter" onchange="setSortFilter(this.value)" aria-label="Sort order">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="name">Name A–Z</option>
+        <option value="size">Largest First</option>
+      </select>
+      <span class="search-results-label" id="results-label" aria-live="polite"></span>
+    </div>
+
+    <div class="content" id="content-area"></div>
+  </div>
+</div>
+
+<!-- ITEM MODAL -->
+<div class="modal-overlay modal-hidden" id="item-modal" onclick="closeModalOnBg(event,'item-modal')" role="dialog" aria-modal="true" aria-labelledby="item-modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="item-modal-title">File Details</h3>
+      <button class="modal-close" onclick="closeModal('item-modal')" aria-label="Close dialog">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="item-preview-wrap"></div>
+      <div class="form-group"><label for="edit-name">File Name</label><input type="text" id="edit-name" maxlength="255"/></div>
+      <div class="form-group"><label for="edit-comment">Caption / Comment</label><textarea id="edit-comment" rows="3" placeholder="Add a note or caption…" maxlength="1000"></textarea></div>
+      <div class="form-group"><label for="edit-folder">Move to Folder</label><select id="edit-folder"></select></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost"   onclick="closeModal('item-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveItemEdits()">Save &amp; Sync</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOLDER MODAL -->
+<div class="modal-overlay modal-hidden" id="folder-modal" onclick="closeModalOnBg(event,'folder-modal')" role="dialog" aria-modal="true" aria-label="Create folder">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Create New Folder</h3>
+      <button class="modal-close" onclick="closeModal('folder-modal')" aria-label="Close dialog">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label for="folder-name-input">Folder Name</label><input type="text" id="folder-name-input" placeholder="e.g. Family Photos 2024" maxlength="100"/></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost"   onclick="closeModal('folder-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="createFolder()">Create Folder</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay modal-hidden" id="del-modal" onclick="closeModalOnBg(event,'del-modal')" role="dialog" aria-modal="true" aria-label="Confirm delete">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Delete File</h3>
+      <button class="modal-close" onclick="closeModal('del-modal')" aria-label="Close dialog">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--muted);margin-bottom:20px;">
+        Permanently delete <strong id="del-name" style="color:var(--text)"></strong>?
+        This removes it from GitHub and cannot be undone.
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-ghost"  onclick="closeModal('del-modal')">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">Delete Forever</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LAMP SCRIPT ══ -->
+<script>
+'use strict';
+
+let lampOn = false;
+
+// FIX #7: closeModal defined here so lamp script can call it safely
+// (avoids ReferenceError if Escape pressed before vault script loads)
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('modal-hidden');
+}
+
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('modal-hidden');
+}
+
+function toggleLamp() {
+  lampOn = !lampOn;
+  const room   = document.getElementById('room');
+  const card   = document.getElementById('login-card');
+  const cordEl = document.getElementById('cord-line');
+
+  // Swing animation — auto-remove after 520ms
+  cordEl.classList.remove('cord-swing');
+  void cordEl.offsetWidth;
+  cordEl.classList.add('cord-swing');
+  setTimeout(() => cordEl.classList.remove('cord-swing'), 520);
+
+  if (lampOn) {
+    room.classList.replace('light-off', 'light-on');
+    setTimeout(() => card.classList.add('visible'), 260);
+  } else {
+    card.classList.remove('visible');
+    setTimeout(() => room.classList.replace('light-on', 'light-off'), 300);
+  }
+}
+
+// ── DRAG-ONLY cord interaction ──
+(function () {
+  const wrap           = document.getElementById('cord-wrap');
+  const cordEl         = document.getElementById('cord-line');
+  const ballEl         = document.getElementById('cord-ball');
+  const CORD_BASE      = 52;   // px — matches CSS height
+  const DRAG_THRESHOLD = 32;   // px drag needed to fire toggle
+  const MAX_STRETCH    = 90;   // px max visual stretch
+
+  let startY      = 0;
+  let dragDist    = 0;
+  let dragging    = false;
+  let touchActive = false;
+
+  function onDragProgress(dist) {
+    const stretch = Math.min(Math.max(dist, 0), MAX_STRETCH);
+    const pct     = stretch / MAX_STRETCH;
+
+    cordEl.classList.add('dragging');
+    cordEl.style.height = (CORD_BASE + stretch) + 'px';
+
+    // Ball follows cord tip downward
+    ballEl.style.transform  = `translateY(${stretch}px)`;
+    ballEl.style.boxShadow  = `0 2px ${8 + pct * 22}px rgba(201,168,76,${0.6 + pct * 0.4})`;
+  }
+
+  function onDragRelease(triggered) {
+    // Snap back with bounce
+    cordEl.classList.remove('dragging');
+    cordEl.classList.add('snapping');
+    cordEl.style.height = CORD_BASE + 'px';
+
+    ballEl.classList.add('snapping');
+    ballEl.style.transform = 'translateY(0)';
+    ballEl.style.boxShadow = '';
+
+    setTimeout(() => {
+      cordEl.classList.remove('snapping');
+      ballEl.classList.remove('snapping');
+    }, 350);
+
+    dragDist = 0;
+    if (triggered) toggleLamp();
+  }
+
+  // Touch events
+  wrap.addEventListener('touchstart', e => {
+    startY      = e.touches[0].clientY;
+    dragDist    = 0;
+    dragging    = true;
+    touchActive = true;
+    e.preventDefault();
+  }, { passive: false });
+
+  wrap.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    dragDist = e.touches[0].clientY - startY;
+    if (dragDist > 0) onDragProgress(dragDist);
+    e.preventDefault();
+  }, { passive: false });
+
+  wrap.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    onDragRelease(dragDist >= DRAG_THRESHOLD);
+    setTimeout(() => { touchActive = false; }, 300);
+  });
+
+  // Mouse events
+  wrap.addEventListener('mousedown', e => {
+    if (touchActive) return;
+    startY   = e.clientY;
+    dragDist = 0;
+    dragging = true;
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!dragging || touchActive) return;
+    dragDist = e.clientY - startY;
+    if (dragDist > 0) onDragProgress(dragDist);
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (!dragging || touchActive) return;
+    dragging = false;
+    onDragRelease(dragDist >= DRAG_THRESHOLD);
+  });
+
+  // Keyboard
+  wrap.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleLamp();
+    }
+  });
+})();
+
+// FIX #8: Single unified keydown listener
+// FIX #7: closeModal already defined above — no cross-script dependency
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    ['item-modal', 'folder-modal', 'del-modal'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !el.classList.contains('modal-hidden')) closeModal(id);
+    });
+  }
+  if (e.key === 'Enter') {
+    const folderModal = document.getElementById('folder-modal');
+    if (folderModal && !folderModal.classList.contains('modal-hidden')) {
+      window.createFolder?.();
+      return;
+    }
+    const room = document.getElementById('room');
+    if (room && room.style.display !== 'none') {
+      // FIX #8: Use optional chaining — safe even if vault script not yet active
+      if (lampOn) window.tryLogin?.();
+      else toggleLamp();
+    }
+  }
+});
+</script>
+
+<!-- ══ VAULT SCRIPT ══ -->
+<script>
+'use strict';
+
+// ── GITHUB CONFIG ──
+const GH_TOKEN  = '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';
+const GH_USER   = 'Gbollzgee';
+const GH_REPO   = 'vault-storage';
+const GH_BRANCH = 'main';
+const GH_API    = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents`;
+const GH_RAW    = `https://raw.githubusercontent.com/${GH_USER}/${GH_REPO}/${GH_BRANCH}`;
+const DB_FILE   = 'vault-db.json';
+
+// FIX #15: Storage constant outside function — computed once, not on every call
+const STORAGE_LIMIT = 1073741824; // 1 GB in bytes
+
+// FIX #24: TextEncoder hoisted to module scope — not re-created on every sha256() call
+const _encoder = new TextEncoder();
+
+// ── APP STATE ──
+// FIX #2: PASS_HASH is now actually used as the comparison target
+const PASS_HASH = (async () => {
+  const buf  = await crypto.subtle.digest('SHA-256', _encoder.encode('08073819126'));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+})();
+
+let st = {
+  view: 'grid', section: 'all',
+  editingId: null, deletingId: null,
+  files: [], folders: [], notes: [],
+};
+
+let filterType   = 'all';
+let filterFolder = '';
+let filterSort   = 'newest';
+let activeNoteId = null;
+let noteAutoSave = null;
+let dbSha        = null;
+
+// ── RATE LIMITING ──
+let loginAttempts = 0;
+let lockoutUntil  = 0;
+let lockoutInterval = null;
+
+// ── SHA-256 helper ──
+// FIX #24: Reuses hoisted _encoder
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', _encoder.encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ── GITHUB API ──
+const ghHeaders = {
+  'Authorization': `token ${GH_TOKEN}`,
+  'Content-Type':  'application/json',
+  'Accept':        'application/vnd.github.v3+json',
+};
+
+async function ghGet(path) {
+  const r = await fetch(`${GH_API}/${path}?t=${Date.now()}`, { headers: ghHeaders });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(`GET ${r.status}: ${err.message || r.statusText}`);
+  }
+  return r.json();
+}
+
+async function ghPut(path, content64, sha, message) {
+  const body = { message, content: content64, branch: GH_BRANCH };
+  if (sha) body.sha = sha;
+  const r = await fetch(`${GH_API}/${path}`, {
+    method: 'PUT', headers: ghHeaders, body: JSON.stringify(body),
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(`PUT ${r.status}: ${err.message || r.statusText}`);
+  }
+  return r.json();
+}
+
+async function ghDelete(path, sha, message) {
+  const r = await fetch(`${GH_API}/${path}`, {
+    method: 'DELETE', headers: ghHeaders,
+    body: JSON.stringify({ message, sha, branch: GH_BRANCH }),
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(`DELETE ${r.status}: ${err.message || r.statusText}`);
+  }
+  return r.json();
+}
+
+// FIX #3 & #4: Proper UTF-8 base64 — explicit Number() cast, case-insensitive regex
+function toB64(str) {
+  return btoa(
+    encodeURIComponent(str).replace(/%([0-9A-F]{2})/gi,
+      (_, p1) => String.fromCharCode(Number('0x' + p1)))
+  );
+}
+
+function fromB64(str) {
+  return decodeURIComponent(
+    atob(str.replace(/\n/g, '')).split('').map(
+      c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')
+    ).join('')
+  );
+}
+
+// ── DATABASE ──
+async function loadDB() {
+  try {
+    const res  = await ghGet(DB_FILE);
+    dbSha      = res.sha;
+    const data = JSON.parse(fromB64(res.content));
+    st.files   = Array.isArray(data.files)   ? data.files   : [];
+    st.folders = Array.isArray(data.folders) ? data.folders : [];
+    st.notes   = Array.isArray(data.notes)   ? data.notes   : [];
+  } catch (_) {
+    st.files = []; st.folders = []; st.notes = [];
+    dbSha = null;
+  }
+}
+
+// FIX #9: saveDB retry now merges pending local state, not overwrite with stale reload
+async function saveDB(message = 'Update vault') {
+  const snapshot = { files: st.files, folders: st.folders, notes: st.notes };
+  const content64 = toB64(JSON.stringify(snapshot, null, 2));
+  try {
+    const res = await ghPut(DB_FILE, content64, dbSha, message);
+    dbSha = res.content.sha;
+  } catch (e) {
+    const isShaConflict = e.message.includes('409') ||
+                          e.message.includes('422') ||
+                          e.message.includes('conflict');
+    if (isShaConflict) {
+      // Refresh only the sha — keep our local state (snapshot)
+      try {
+        const fresh = await ghGet(DB_FILE);
+        dbSha = fresh.sha;
+        const res2 = await ghPut(DB_FILE, content64, dbSha, message + ' (retry)');
+        dbSha = res2.content.sha;
+      } catch (retryErr) {
+        throw new Error('Save failed after retry: ' + retryErr.message);
+      }
+    } else {
+      throw e;
+    }
+  }
+}
+
+// ── LOGIN / LOGOUT ──
+window.tryLogin = async function () {
+  const now = Date.now();
+  if (now < lockoutUntil) return; // lockout UI handles display
+
+  const input = document.getElementById('pw-input').value.trim();
+  if (!input) return;
+
+  const [inputHash, targetHash] = await Promise.all([sha256(input), PASS_HASH]);
+
+  if (inputHash === targetHash) {
+    loginAttempts = 0;
+    lockoutUntil  = 0;
+    clearInterval(lockoutInterval);
+
+    document.getElementById('login-err').style.display     = 'none';
+    document.getElementById('login-lockout').style.display = 'none';
+    document.getElementById('pw-input').value = '';
+
+    document.getElementById('room').style.display = 'none';
+    document.getElementById('app').style.display  = 'flex';
+    document.getElementById('app').style.animation = 'vaultIn 0.4s ease both';
+    document.body.style.overflow = 'auto';
+
+    toast('☁️ Loading vault…');
+    try {
+      await loadDB();
+      renderContent();
+      updateStorageMeter();
+      toast(`✅ Vault loaded — ${st.files.length} file${st.files.length !== 1 ? 's' : ''}`);
+    } catch (err) {
+      toast('❌ Load failed: ' + err.message);
+      console.error('loadDB:', err);
+    }
+  } else {
+    loginAttempts++;
+    document.getElementById('pw-input').value = '';
+
+    if (loginAttempts >= 5) {
+      lockoutUntil  = Date.now() + 120_000; // 2 minutes
+      loginAttempts = 0;
+      startLockoutCountdown();
+    } else {
+      const errEl = document.getElementById('login-err');
+      errEl.textContent  = `❌ Incorrect password. ${5 - loginAttempts} attempt${5 - loginAttempts !== 1 ? 's' : ''} remaining.`;
+      errEl.style.display = 'block';
+      errEl.style.animation = 'none';
+      void errEl.offsetWidth;
+      errEl.style.animation = 'shake 0.4s ease';
+    }
+  }
+};
+
+function startLockoutCountdown() {
+  const btn  = document.getElementById('btn-signin');
+  const lo   = document.getElementById('login-lockout');
+  const errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+  if (btn) btn.disabled = true;
+
+  clearInterval(lockoutInterval);
+  lockoutInterval = setInterval(() => {
+    const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+    if (remaining <= 0) {
+      clearInterval(lockoutInterval);
+      lo.style.display  = 'none';
+      if (btn) btn.disabled = false;
+    } else {
+      lo.textContent   = `🔒 Too many attempts. Try again in ${remaining}s.`;
+      lo.style.display = 'block';
+    }
+  }, 500);
+}
+
+window.logout = function () {
+  clearInterval(lockoutInterval);
+
+  document.getElementById('app').style.display  = 'none';
+  document.getElementById('room').style.display = '';
+  document.body.style.overflow = 'hidden';
+
+  // Reset lamp
+  lampOn = false;
+  const room = document.getElementById('room');
+  room.classList.remove('light-on');
+  room.classList.add('light-off');
+  document.getElementById('login-card').classList.remove('visible');
+  document.getElementById('login-err').style.display     = 'none';
+  document.getElementById('login-lockout').style.display = 'none';
+
+  st.files = []; st.folders = []; st.notes = [];
+  activeNoteId = null; dbSha = null;
+  _lastFolderKey = '';
+};
+
+// ── UPLOAD ──
+window.handleFileDrop = function (e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const files = e.dataTransfer?.files || e.target.files;
+  if (files?.length) uploadFiles(files);
+};
+
+window.uploadFiles = async function (list) {
+  const files = Array.from(list);
+  if (!files.length) return;
+
+  const pw = document.getElementById('upload-progress-wrap');
+  const pf = document.getElementById('up-fill');
+  const pn = document.getElementById('up-name-text');
+  const pp = document.getElementById('up-pct-text');
+  if (pw) pw.style.display = 'block';
+
+  const folderId = st.section.startsWith('folder:')
+    ? st.section.replace('folder:', '')
+    : null;
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    if (pn) pn.textContent = `(${i + 1}/${files.length}) ${file.name}`;
+    if (pf) pf.style.width = '0%';
+    if (pp) pp.textContent = '0%';
+
+    try {
+      const base64full = await readAndCompress(file, pf, pp);
+
+      if (pn) pn.textContent = `Uploading: ${file.name}`;
+      if (pf) pf.style.width = '70%';
+
+      // FIX #10: Preserve file extension — sanitise base only
+      const dotIndex = file.name.lastIndexOf('.');
+      const baseName = dotIndex > 0 ? file.name.slice(0, dotIndex) : file.name;
+      const ext      = dotIndex > 0 ? file.name.slice(dotIndex)    : '';
+      const safeBase = baseName.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 180);
+
+      // FIX #11 & #12: Single timestamp captured once for consistency
+      const ts       = Date.now();
+      const filePath = `files/${ts}_${safeBase}${ext}`;
+      const pureB64  = base64full.split(',')[1];
+
+      const uploadRes = await ghPut(filePath, pureB64, null, `Upload: ${file.name}`);
+      if (pf) pf.style.width = '90%';
+
+      const rec = {
+        // FIX #11: Use same ts for id — no timestamp mismatch
+        id:        `f_${ts}_${Math.random().toString(36).slice(2, 8)}`,
+        name:      file.name,
+        url:       `${GH_RAW}/${filePath}`,
+        ghPath:    filePath,
+        ghSha:     uploadRes.content.sha,
+        type:      getType(file.name, file.type),
+        mime:      file.type,
+        size:      file.size,
+        comment:   '',
+        folderId:  folderId,
+        createdAt: ts,
+      };
+
+      st.files.unshift(rec);
+      if (pf) pf.style.width = '95%';
+      await saveDB(`Add: ${file.name}`);
+      if (pf) { pf.style.width = '100%'; }
+      if (pp)  pp.textContent = '✓';
+
+      renderContent();
+      updateStorageMeter();
+      toast(`✅ Uploaded: ${file.name}`);
+
+    } catch (err) {
+      toast(`❌ Failed: ${file.name} — ${err.message}`);
+      console.error('Upload error:', err);
+    }
+  }
+
+  setTimeout(() => { if (pw) pw.style.display = 'none'; }, 1200);
+};
+
+function readAndCompress(file, pf, pp) {
+  return new Promise((res, rej) => {
+    if (file.type.startsWith('image/')) {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const MAX = 1200;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        if (pf) pf.style.width = '55%';
+        if (pp) pp.textContent = '55%';
+        res(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Image load failed')); };
+      img.src = url;
+    } else {
+      if (file.size > 90 * 1024 * 1024) {
+        rej(new Error('File too large. Max 90 MB per file.'));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onprogress = e => {
+        if (e.lengthComputable) {
+          const p = Math.round((e.loaded / e.total) * 60);
+          if (pf) pf.style.width = p + '%';
+          if (pp) pp.textContent = p + '%';
+        }
+      };
+      reader.onload  = e => res(e.target.result);
+      reader.onerror = ()  => rej(new Error('File read failed'));
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+// ── DELETE ──
+window.askDelete = function (id) {
+  const f = st.files.find(x => x.id === id);
+  if (!f) return;
+  st.deletingId = id;
+  document.getElementById('del-name').textContent = f.name;
+  openModal('del-modal');
+};
+
+window.confirmDelete = async function () {
+  const f = st.files.find(x => x.id === st.deletingId);
+  if (!f) { closeModal('del-modal'); return; }
+  try {
+    toast('🗑 Deleting…');
+    if (f.ghPath && f.ghSha) {
+      await ghDelete(f.ghPath, f.ghSha, `Delete: ${f.name}`);
+    }
+    st.files = st.files.filter(x => x.id !== st.deletingId);
+    await saveDB(`Delete: ${f.name}`);
+    closeModal('del-modal');
+    renderContent();
+    updateStorageMeter();
+    toast('✅ Deleted permanently');
+  } catch (e) {
+    toast('❌ Delete failed: ' + e.message);
+    console.error('Delete error:', e);
+  }
+};
+
+// ── FOLDERS ──
+window.showNewFolderModal = function () {
+  document.getElementById('folder-name-input').value = '';
+  openModal('folder-modal');
+  setTimeout(() => document.getElementById('folder-name-input').focus(), 120);
+};
+
+window.createFolder = async function () {
+  const name = document.getElementById('folder-name-input').value.trim();
+  if (!name) return;
+  const f = { id: `folder_${Date.now()}`, name, createdAt: Date.now() };
+  st.folders.push(f);
+  _lastFolderKey = ''; // invalidate dedup cache
+  try {
+    await saveDB(`Create folder: ${name}`);
+    closeModal('folder-modal');
+    renderContent();
+    toast(`📁 "${name}" created`);
+  } catch (e) {
+    st.folders.pop();
+    _lastFolderKey = '';
+    toast('❌ Failed: ' + e.message);
+  }
+};
+
+window.deleteFolder = async function (id) {
+  if (!confirm('Delete this folder? Files will move to root.')) return;
+  const removed = st.folders.find(f => f.id === id);
+  st.folders    = st.folders.filter(f => f.id !== id);
+  st.files.forEach(f => { if (f.folderId === id) f.folderId = null; });
+  _lastFolderKey = '';
+  try {
+    await saveDB('Delete folder');
+    if (st.section === 'folder:' + id) navigate('all');
+    else renderContent();
+  } catch (e) {
+    if (removed) st.folders.push(removed);
+    _lastFolderKey = '';
+    toast('❌ Failed: ' + e.message);
+  }
+};
+
+// ── ITEM EDIT ──
+window.openItem = function (id) {
+  const f = st.files.find(x => x.id === id);
+  if (!f) return;
+  st.editingId = id;
+  document.getElementById('item-modal-title').textContent = f.name;
+  document.getElementById('edit-name').value    = f.name;
+  document.getElementById('edit-comment').value = f.comment || '';
+
+  let preview = '';
+  if (f.type === 'photo') {
+    preview = `<img class="modal-img" src="${f.url}" alt="${esc(f.name)}" crossorigin="anonymous"/>`;
+  } else if (f.type === 'video') {
+    preview = `<video class="modal-img" controls src="${f.url}" style="width:100%;border-radius:var(--radius);max-height:300px;background:#000;margin-bottom:16px;"></video>`;
+  } else {
+    preview  = `<div style="text-align:center;padding:28px;font-size:4rem;margin-bottom:10px;" aria-hidden="true">${icon(f.type, f.name)}</div>`;
+    preview += `<div style="text-align:center;margin-bottom:12px;"><a href="${f.url}" target="_blank" rel="noopener noreferrer" style="color:var(--gold);font-size:0.88rem;">📥 Download / Open</a></div>`;
+  }
+  document.getElementById('item-preview-wrap').innerHTML = preview;
+
+  const opts = ['<option value="">— No Folder (Root) —</option>',
+    ...st.folders.map(x =>
+      `<option value="${esc(x.id)}" ${f.folderId === x.id ? 'selected' : ''}>${esc(x.name)}</option>`)
+  ].join('');
+  document.getElementById('edit-folder').innerHTML = opts;
+  openModal('item-modal');
+};
+
+window.saveItemEdits = async function () {
+  const f = st.files.find(x => x.id === st.editingId);
+  if (!f) return;
+  f.name     = (document.getElementById('edit-name').value.trim()    || f.name).slice(0, 255);
+  f.comment  = (document.getElementById('edit-comment').value.trim() || '').slice(0, 1000);
+  f.folderId = document.getElementById('edit-folder').value || null;
+  try {
+    await saveDB('Update file info');
+    closeModal('item-modal');
+    renderContent();
+    toast('✅ Saved & synced');
+  } catch (e) {
+    toast('❌ Save failed: ' + e.message);
+  }
+};
+
+// ── NOTES ──
+window.createNewNote = async function () {
+  const ts   = Date.now();
+  const note = { id: `note_${ts}`, title: 'Untitled Note', body: '', createdAt: ts, updatedAt: ts };
+  st.notes.unshift(note);
+  activeNoteId = note.id;
+  try {
+    await saveDB('Create note');
+  } catch (e) {
+    st.notes.shift();
+    activeNoteId = null;
+    toast('❌ Failed: ' + e.message);
+    return;
+  }
+  renderContent();
+  setTimeout(() => {
+    const t = document.getElementById('note-title-inp');
+    if (t) { t.focus(); t.select(); }
+  }, 100);
+};
+
+window.openNote = function (id) {
+  saveCurrentNote();
+  activeNoteId = id;
+  renderNoteEditor();
+  document.querySelectorAll('.note-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.id === id)
+  );
+};
+
+window.deleteNote = async function (id, e) {
+  e.stopPropagation();
+  if (!confirm('Delete this note?')) return;
+  const removed = st.notes.find(n => n.id === id);
+  st.notes = st.notes.filter(n => n.id !== id);
+  if (activeNoteId === id) activeNoteId = null;
+  try {
+    await saveDB('Delete note');
+    renderContent();
+  } catch (err) {
+    if (removed) st.notes.unshift(removed);
+    toast('❌ Failed: ' + err.message);
+  }
+};
+
+function saveCurrentNote() {
+  if (!activeNoteId) return;
+  const t    = document.getElementById('note-title-inp');
+  const b    = document.getElementById('note-body-inp');
+  if (!t || !b) return;
+  const note = st.notes.find(n => n.id === activeNoteId);
+  if (!note) return;
+  note.title     = (t.value.trim() || 'Untitled Note').slice(0, 200);
+  note.body      = b.value.slice(0, 50000);
+  note.updatedAt = Date.now();
+}
+
+window.onNoteChange = function () {
+  clearTimeout(noteAutoSave);
+  const bodyEl = document.getElementById('note-body-inp');
+  const wc     = document.getElementById('note-wc');
+  if (bodyEl && wc) {
+    const words = bodyEl.value.trim() === ''
+      ? 0
+      : bodyEl.value.trim().split(/\s+/).length;
+    wc.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+  }
+  noteAutoSave = setTimeout(async () => {
+    saveCurrentNote();
+    try { await saveDB('Auto-save note'); }
+    catch (e) { console.warn('Note auto-save failed:', e.message); }
+  }, 2000);
+};
+
+function renderNoteEditor() {
+  const el = document.getElementById('note-editor-area');
+  if (!el) return;
+  if (!activeNoteId) {
+    el.innerHTML = `<div class="notes-empty"><div class="ei">📝</div><p>Select a note or create one</p></div>`;
+    return;
+  }
+  const note = st.notes.find(n => n.id === activeNoteId);
+  if (!note) {
+    el.innerHTML = `<div class="notes-empty"><div class="ei">📝</div><p>Note not found</p></div>`;
+    return;
+  }
+  const words = note.body.trim() === '' ? 0 : note.body.trim().split(/\s+/).length;
+  el.innerHTML = `
+    <div class="note-editor">
+      <div class="note-editor-top">
+        <input class="note-title-input" id="note-title-inp"
+               value="${esc(note.title || '')}"
+               placeholder="Note title…" maxlength="200"
+               oninput="onNoteChange()"/>
+        <span style="font-size:0.72rem;color:var(--muted);">${fmtDate(note.updatedAt)}</span>
+      </div>
+      <textarea class="note-body-input" id="note-body-inp"
+                placeholder="Start writing…" maxlength="50000"
+                oninput="onNoteChange()">${esc(note.body || '')}</textarea>
+      <div class="note-footer">
+        <span id="note-wc">${words} word${words !== 1 ? 's' : ''}</span>
+        <span style="color:var(--success);font-size:0.72rem;">● Auto-saving</span>
+      </div>
+    </div>`;
+}
+
+// ── STORAGE METER ──
+function updateStorageMeter() {
+  // FIX #15: STORAGE_LIMIT constant used here (not recomputed)
+  const used = st.files.reduce((s, f) => s + (f.size || 0), 0);
+  const pct  = Math.min((used / STORAGE_LIMIT) * 100, 100);
+  const fill = document.getElementById('storage-fill');
+  const text = document.getElementById('storage-used-text');
+  const warn = document.getElementById('storage-warn');
+  if (fill) {
+    fill.style.width      = pct.toFixed(1) + '%';
+    fill.style.background = pct > 80
+      ? 'linear-gradient(90deg,#e05555,#ff7070)'
+      : 'linear-gradient(90deg,var(--gold),var(--gold2))';
+  }
+  if (text) text.textContent = `${fmtSize(used)} / 1 GB`;
+  if (warn) warn.style.display = pct > 80 ? 'block' : 'none';
+  // Update aria-valuenow on progress bar
+  const bar = document.querySelector('.storage-bar');
+  if (bar) bar.setAttribute('aria-valuenow', Math.round(pct));
+}
+
+// ── NAVIGATION ──
+window.navigate = function (sec) {
+  filterType = 'all'; filterFolder = ''; filterSort = 'newest';
+  document.querySelectorAll('.filter-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.filter === 'all')
+  );
+  const sortSel = document.getElementById('sort-filter');
+  if (sortSel) sortSel.value = 'newest';
+
+  st.section = sec;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const navBtn = document.getElementById('nav-' + sec);
+  if (navBtn) navBtn.classList.add('active');
+  const searchEl = document.getElementById('search-input');
+  if (searchEl) searchEl.value = '';
+  renderContent();
+  if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+};
+
+window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('open');
+
+window.setView = function (v) {
+  st.view = v;
+  document.getElementById('vb-grid').classList.toggle('active', v === 'grid');
+  document.getElementById('vb-list').classList.toggle('active', v === 'list');
+  renderContent();
+};
+
+// ── SMART SEARCH FILTERS ──
+window.setTypeFilter = function (type, btn) {
+  filterType = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderContent();
+};
+window.setFolderFilter = val => { filterFolder = val; renderContent(); };
+window.setSortFilter   = val => { filterSort   = val; renderContent(); };
+
+function applyFilters(files) {
+  let result = filterType !== 'all'  ? files.filter(f => f.type === filterType)    : files;
+  result     = filterFolder          ? result.filter(f => f.folderId === filterFolder) : result;
+  const out  = [...result];
+  if      (filterSort === 'oldest') out.sort((a, b) => a.createdAt - b.createdAt);
+  else if (filterSort === 'name')   out.sort((a, b) => a.name.localeCompare(b.name));
+  else if (filterSort === 'size')   out.sort((a, b) => (b.size || 0) - (a.size || 0));
+  else                              out.sort((a, b) => b.createdAt - a.createdAt);
+  return out;
+}
+
+// FIX #16: Track folder key (names + ids) not just count
+// This ensures rename also triggers dropdown rebuild
+let _lastFolderKey = '';
+function updateFolderFilterOptions() {
+  const key = st.folders.map(f => f.id + ':' + f.name).join('|');
+  if (key === _lastFolderKey) return;
+  _lastFolderKey = key;
+  const sel = document.getElementById('folder-filter');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All Folders</option>' +
+    st.folders.map(f =>
+      `<option value="${esc(f.id)}" ${cur === f.id ? 'selected' : ''}>${esc(f.name)}</option>`
+    ).join('');
+}
+
+// ── HELPERS ──
+function getType(name, mime) {
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  if (mime?.startsWith('image/')) return 'photo';
+  if (mime?.startsWith('video/')) return 'video';
+  if (['mp4','webm','mov','avi','mkv','flv'].includes(ext))                              return 'video';
+  if (['jpg','jpeg','png','gif','webp','bmp','svg','heic'].includes(ext))                return 'photo';
+  if (['pdf','doc','docx','xls','xlsx','ppt','pptx','txt','csv','rtf'].includes(ext))    return 'doc';
+  return 'other';
+}
+
+function icon(type, name) {
+  if (type === 'photo') return '🖼️';
+  if (type === 'video') return '🎬';
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  const map = { pdf:'📕', doc:'📘', docx:'📘', xls:'📗', xlsx:'📗', ppt:'📙', pptx:'📙', txt:'📄', rtf:'📄', csv:'📄' };
+  return map[ext] || '📦';
+}
+
+function fmtSize(b) {
+  if (!b) return '0 B';
+  if (b < 1024)        return b + ' B';
+  if (b < 1048576)     return (b / 1024).toFixed(1) + ' KB';
+  if (b < 1073741824)  return (b / 1048576).toFixed(1) + ' MB';
+  return (b / 1073741824).toFixed(2) + ' GB';
+}
+
+function fmtDate(ts) {
+  if (!ts) return '';
+  return new Date(ts).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g,  '&amp;')
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;')
+    .replace(/'/g,  '&#x27;');
+}
+
+// ── RENDER ──
+function renderSidebarFolders() {
+  const el = document.getElementById('folder-nav-list');
+  if (!el) return;
+  el.innerHTML = st.folders.map(f => `
+    <div class="folder-item" role="listitem">
+      <button class="nav-btn ${st.section === 'folder:' + f.id ? 'active' : ''}"
+              onclick="navigate('folder:${esc(f.id)}')">
+        <span class="nav-icon" aria-hidden="true">📁</span>
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}</span>
+      </button>
+      <button class="folder-del" onclick="deleteFolder('${esc(f.id)}')"
+              title="Delete folder" aria-label="Delete folder ${esc(f.name)}">🗑</button>
+    </div>`).join('');
+}
+
+function renderContent() {
+  renderSidebarFolders();
+  updateFolderFilterOptions();
+
+  const searchEl = document.getElementById('search-input');
+  const search = searchEl ? searchEl.value.toLowerCase() : '';
+  const sec    = st.section;
+  let files = [...st.files];
+  let title = 'All Files';
+  let showFolders = false;
+
+  if      (sec === 'all')    { showFolders = true; }
+  else if (sec === 'photos') { files = files.filter(f => f.type === 'photo'); title = 'Photos'; }
+  else if (sec === 'videos') { files = files.filter(f => f.type === 'video'); title = 'Videos'; }
+  else if (sec === 'docs')   { files = files.filter(f => f.type === 'doc');   title = 'Documents'; }
+  else if (sec === 'other')  { files = files.filter(f => f.type === 'other'); title = 'Other Files'; }
+  else if (sec.startsWith('folder:')) {
+    const fid    = sec.replace('folder:', '');
+    const folder = st.folders.find(f => f.id === fid);
+    title  = folder ? folder.name : 'Folder';
+    files  = files.filter(f => f.folderId === fid);
+  }
+
+  const fb = document.getElementById('filter-bar');
+  if (fb) fb.style.display = sec === 'notes' ? 'none' : 'flex';
+
+  if (search) {
+    files       = files.filter(f =>
+      f.name.toLowerCase().includes(search) ||
+      (f.comment || '').toLowerCase().includes(search)
+    );
+    showFolders = false;
+  }
+
+  files = applyFilters(files);
+
+  const rl = document.getElementById('results-label');
+  if (rl) rl.textContent = `${files.length} result${files.length !== 1 ? 's' : ''}`;
+
+  document.getElementById('page-title').textContent = title;
+
+  // ── NOTES ──
+  if (sec === 'notes') {
+    document.getElementById('content-area').innerHTML = `
+      <button class="new-note-btn" onclick="createNewNote()">➕ New Note</button>
+      <div class="notes-layout">
+        <div class="notes-list" id="notes-list" role="list">
+          ${st.notes.length === 0
+            ? '<div class="notes-empty" style="height:200px"><div class="ei">📭</div><p>No notes yet</p></div>'
+            : st.notes.map(n => `
+              <div class="note-item ${activeNoteId === n.id ? 'active' : ''}"
+                   data-id="${esc(n.id)}" onclick="openNote('${esc(n.id)}')" role="listitem">
+                <button class="note-del-btn" onclick="deleteNote('${esc(n.id)}',event)"
+                        aria-label="Delete note ${esc(n.title)}">🗑</button>
+                <div class="note-item-title">${esc(n.title || 'Untitled')}</div>
+                <div class="note-item-preview">${esc((n.body || '').slice(0, 60))}</div>
+                <div class="note-item-date">${fmtDate(n.updatedAt)}</div>
+              </div>`).join('')}
+          <div class="note-count">${st.notes.length} note${st.notes.length !== 1 ? 's' : ''}</div>
+        </div>
+        <div id="note-editor-area"></div>
+      </div>`;
+    renderNoteEditor();
+    return;
+  }
+
+  // ── FILES ──
+  const fiv  = showFolders ? st.folders : [];
+  let   html = '';
+
+  // FIX #22: Compute stats in ONE pass instead of filtering the array 4 times
+  if (sec === 'all' && !search) {
+    let photoCount = 0, videoCount = 0;
+    for (const f of st.files) {
+      if (f.type === 'photo') photoCount++;
+      else if (f.type === 'video') videoCount++;
+    }
+    html += `<div class="stats-bar">
+      <div class="stat-card"><div class="sv">${st.files.length}</div><div class="sl">Total Files</div></div>
+      <div class="stat-card"><div class="sv">${photoCount}</div><div class="sl">Photos</div></div>
+      <div class="stat-card"><div class="sv">${videoCount}</div><div class="sl">Videos</div></div>
+      <div class="stat-card"><div class="sv">${st.folders.length}</div><div class="sl">Folders</div></div>
+    </div>`;
+  }
+
+  if (sec.startsWith('folder:')) {
+    const fid    = sec.replace('folder:', '');
+    const folder = st.folders.find(f => f.id === fid);
+    html += `<div class="breadcrumb">
+      <span onclick="navigate('all')">🏠 All Files</span>
+      <span class="sep" aria-hidden="true">›</span>
+      <span class="cur">📁 ${folder ? esc(folder.name) : 'Folder'}</span>
+    </div>`;
+  }
+
+  html += `
+    <div class="upload-zone"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="handleFileDrop(event)"
+         role="button" aria-label="Upload files — drag and drop or click">
+      <input type="file" multiple onchange="uploadFiles(this.files)" aria-label="Select files"/>
+      <div class="uz-icon" aria-hidden="true">☁️</div>
+      <h3>Upload Files</h3>
+      <p>Drag &amp; drop or click — stored in your private GitHub repo</p>
+    </div>
+    <div class="upload-progress" id="upload-progress-wrap" role="status" aria-live="polite">
+      <div class="up-top">
+        <span class="up-name" id="up-name-text">Uploading…</span>
+        <span class="up-pct"  id="up-pct-text">0%</span>
+      </div>
+      <div class="up-bar"><div class="up-fill" id="up-fill"></div></div>
+    </div>`;
+
+  if (fiv.length > 0) {
+    html += `
+      <div class="section-header">
+        <h2>Folders</h2><span class="badge">${fiv.length}</span>
+      </div>
+      <div class="items-grid" style="margin-bottom:32px;" role="list">
+        ${fiv.map(f => {
+          const c = st.files.filter(fi => fi.folderId === f.id).length;
+          return `<div class="folder-card" onclick="navigate('folder:${esc(f.id)}')"
+                       role="listitem button" aria-label="Folder: ${esc(f.name)}, ${c} items">
+            <div class="fi" aria-hidden="true">📁</div>
+            <h4>${esc(f.name)}</h4>
+            <p>${c} item${c !== 1 ? 's' : ''}</p>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  const sectionLabel = sec.startsWith('folder:') ? 'Files in this folder'
+                     : sec === 'all'              ? 'All Files'
+                     : title;
+
+  html += `<div class="section-header"><h2>${sectionLabel}</h2><span class="badge">${files.length}</span></div>`;
+
+  if (files.length === 0) {
+    html += `<div class="empty-state">
+      <div class="ei" aria-hidden="true">📭</div>
+      <h3>No files here yet</h3>
+      <p>${search ? 'No results match your search.' : 'Upload files using the box above.'}</p>
+    </div>`;
+  } else {
+    html += st.view === 'grid'
+      ? `<div class="items-grid" role="list">${files.map(gridCard).join('')}</div>`
+      : `<div class="items-list" role="list">${files.map(listItem).join('')}</div>`;
+  }
+
+  document.getElementById('content-area').innerHTML = html;
+}
+
+function gridCard(f) {
+  const th = f.type === 'photo'
+    ? `<div class="item-thumb"><img src="${f.url}" alt="${esc(f.name)}" loading="lazy" crossorigin="anonymous"/></div>`
+    : `<div class="item-thumb" aria-hidden="true">${icon(f.type, f.name)}</div>`;
+  return `
+    <div class="item-card" onclick="openItem('${esc(f.id)}')"
+         role="listitem button" aria-label="${esc(f.name)}">
+      ${th}
+      <div class="item-info">
+        <div class="item-name">${esc(f.name)}</div>
+        ${f.comment ? `<div class="item-comment">💬 ${esc(f.comment)}</div>` : ''}
+        <div class="item-meta">${fmtDate(f.createdAt)}${f.size ? ' · ' + fmtSize(f.size) : ''}</div>
+      </div>
+      <div class="item-actions">
+        <button class="action-btn"     onclick="event.stopPropagation();openItem('${esc(f.id)}')"  aria-label="Edit ${esc(f.name)}">✏️</button>
+        <button class="action-btn del" onclick="event.stopPropagation();askDelete('${esc(f.id)}')" aria-label="Delete ${esc(f.name)}">🗑</button>
+      </div>
+    </div>`;
+}
+
+function listItem(f) {
+  const th = f.type === 'photo'
+    ? `<div class="list-thumb"><img src="${f.url}" alt="" loading="lazy" crossorigin="anonymous"/></div>`
+    : `<div class="list-thumb" aria-hidden="true">${icon(f.type, f.name)}</div>`;
+  return `
+    <div class="list-item" onclick="openItem('${esc(f.id)}')"
+         role="listitem button" aria-label="${esc(f.name)}">
+      ${th}
+      <div class="list-info">
+        <div class="list-name">${esc(f.name)}</div>
+        ${f.comment ? `<div class="list-comment">💬 ${esc(f.comment)}</div>` : ''}
+      </div>
+      <div class="list-meta">${fmtDate(f.createdAt)}${f.size ? ' · ' + fmtSize(f.size) : ''}</div>
+      <div class="list-acts">
+        <button class="action-btn"     onclick="event.stopPropagation();openItem('${esc(f.id)}')"  aria-label="Edit">✏️</button>
+        <button class="action-btn del" onclick="event.stopPropagation();askDelete('${esc(f.id)}')" aria-label="Delete">🗑</button>
+      </div>
+    </div>`;
+}
+
+// ── MODAL UTILS ──
+// openModal/closeModal defined in lamp script (shared scope)
+window.closeModalOnBg = function (e, id) {
+  if (e.target === document.getElementById(id)) closeModal(id);
+};
+
+// ── TOAST ──
+let toastTimer = null;
+window.toast = function (msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  clearTimeout(toastTimer);
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  t.setAttribute('role', 'status');
+  t.setAttribute('aria-live', 'polite');
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => t.remove(), 4000);
+};
+</script>
+</body>
+</html>
