@@ -1,6 +1,19 @@
 {
   "files": [
     {
+      "id": "f_1783585720035_ro06gf",
+      "name": "6d129836a46a3c3910e0b022120c519e.png",
+      "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1783585720035_6d129836a46a3c3910e0b022120c519e.png",
+      "ghPath": "files/1783585720035_6d129836a46a3c3910e0b022120c519e.png",
+      "ghSha": "3f94d5cdf89e9949491911e0aa803233e1ec106f",
+      "type": "photo",
+      "mime": "image/png",
+      "size": 517616,
+      "comment": "",
+      "folderId": null,
+      "createdAt": 1783585720035
+    },
+    {
       "id": "f_1783585688851_ej4ncb",
       "name": "Letter_of_Permission.pdf",
       "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1783585688851_Letter_of_Permission.pdf",
