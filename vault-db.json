@@ -64,19 +64,6 @@
       "comment": "",
       "folderId": null,
       "createdAt": 1783585823014
-    },
-    {
-      "id": "f_1783585688851_ej4ncb",
-      "name": "Letter_of_Permission.pdf",
-      "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1783585688851_Letter_of_Permission.pdf",
-      "ghPath": "files/1783585688851_Letter_of_Permission.pdf",
-      "ghSha": "f8c0fca348f93800ecfe4777ea518b7709d598b1",
-      "type": "doc",
-      "mime": "application/pdf",
-      "size": 51342,
-      "comment": "",
-      "folderId": null,
-      "createdAt": 1783585688851
     }
   ],
   "folders": [
