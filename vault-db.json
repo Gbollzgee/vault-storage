@@ -1,19 +1,6 @@
 {
   "files": [
     {
-      "id": "f_1784563654019_37s3md",
-      "name": "VID-20260605-WA0079.mp4",
-      "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1784563654019_VID-20260605-WA0079.mp4",
-      "ghPath": "files/1784563654019_VID-20260605-WA0079.mp4",
-      "ghSha": "0ab0d9fad257f3f82825854eec346fbde0b433cf",
-      "type": "video",
-      "mime": "video/mp4",
-      "size": 5076872,
-      "comment": "",
-      "folderId": null,
-      "createdAt": 1784563654019
-    },
-    {
       "id": "f_1784563020877_vfzbxo",
       "name": "Tribe.m4a",
       "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1784563020877_Tribe.m4a",
