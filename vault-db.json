@@ -1,6 +1,19 @@
 {
   "files": [
     {
+      "id": "f_1784563020877_vfzbxo",
+      "name": "Tribe.m4a",
+      "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1784563020877_Tribe.m4a",
+      "ghPath": "files/1784563020877_Tribe.m4a",
+      "ghSha": "e9800c4d49d7afde1e5694fc591a5f62310c0951",
+      "type": "other",
+      "mime": "audio/x-m4a",
+      "size": 2266270,
+      "comment": "",
+      "folderId": null,
+      "createdAt": 1784563020877
+    },
+    {
       "id": "f_1784562879828_4rnpxj",
       "name": "Screenshot_20260719_024726_TikTok.jpg",
       "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1784562879828_Screenshot_20260719_024726_TikTok.jpg",
@@ -87,7 +100,7 @@
       "type": "video",
       "mime": "video/mp4",
       "size": 27836145,
-      "comment": "",
+      "comment": "I added smth",
       "folderId": null,
       "createdAt": 1783585823014
     }
@@ -100,41 +113,6 @@
     }
   ],
   "notes": [
-    {
-      "id": "note_1784562946843",
-      "title": "Untitled Note",
-      "body": "",
-      "createdAt": 1784562946843,
-      "updatedAt": 1784562946843
-    },
-    {
-      "id": "note_1784562945585",
-      "title": "Untitled Note",
-      "body": "",
-      "createdAt": 1784562945585,
-      "updatedAt": 1784562945585
-    },
-    {
-      "id": "note_1784562944570",
-      "title": "Untitled Note",
-      "body": "",
-      "createdAt": 1784562944570,
-      "updatedAt": 1784562944570
-    },
-    {
-      "id": "note_1784562944079",
-      "title": "Untitled Note",
-      "body": "",
-      "createdAt": 1784562944079,
-      "updatedAt": 1784562944079
-    },
-    {
-      "id": "note_1784562943481",
-      "title": "Untitled Note",
-      "body": "",
-      "createdAt": 1784562943481,
-      "updatedAt": 1784562943481
-    },
     {
       "id": "note_1784562942842",
       "title": "Untitled Note",
