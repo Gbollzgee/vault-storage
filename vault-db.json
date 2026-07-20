@@ -99,5 +99,34 @@
       "createdAt": 1783586811387
     }
   ],
-  "notes": []
+  "notes": [
+    {
+      "id": "note_1784562944079",
+      "title": "Untitled Note",
+      "body": "",
+      "createdAt": 1784562944079,
+      "updatedAt": 1784562944079
+    },
+    {
+      "id": "note_1784562943481",
+      "title": "Untitled Note",
+      "body": "",
+      "createdAt": 1784562943481,
+      "updatedAt": 1784562943481
+    },
+    {
+      "id": "note_1784562942842",
+      "title": "Untitled Note",
+      "body": "",
+      "createdAt": 1784562942842,
+      "updatedAt": 1784562942842
+    },
+    {
+      "id": "note_1784562941977",
+      "title": "Untitled Note",
+      "body": "",
+      "createdAt": 1784562941977,
+      "updatedAt": 1784562941977
+    }
+  ]
 }
