@@ -1,6 +1,19 @@
 {
   "files": [
     {
+      "id": "f_1784933343088_gz6yet",
+      "name": "aa6cb7c0-876e-11f1-a70e-09bdc39d306e.png",
+      "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1784933343088_aa6cb7c0-876e-11f1-a70e-09bdc39d306e.png",
+      "ghPath": "files/1784933343088_aa6cb7c0-876e-11f1-a70e-09bdc39d306e.png",
+      "ghSha": "1717cc7bc245fa8dc46945f077b562153566f4ff",
+      "type": "photo",
+      "mime": "image/png",
+      "size": 2547646,
+      "comment": "",
+      "folderId": null,
+      "createdAt": 1784933343088
+    },
+    {
       "id": "f_1784679810247_0klehf",
       "name": "AUD-20251120-WA0055.aac",
       "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1784679810247_AUD-20251120-WA0055.aac",
