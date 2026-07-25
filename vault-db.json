@@ -1,6 +1,19 @@
 {
   "files": [
     {
+      "id": "f_1784973262557_gyg1hq",
+      "name": "video1.mp3",
+      "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1784973262557_video1.mp3",
+      "ghPath": "files/1784973262557_video1.mp3",
+      "ghSha": "e0889f402cef0f0f6e7b287564956e83da627866",
+      "type": "other",
+      "mime": "audio/mpeg",
+      "size": 470266,
+      "comment": "",
+      "folderId": null,
+      "createdAt": 1784973262557
+    },
+    {
       "id": "f_1784940366689_49dox8",
       "name": "profile.pdf",
       "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1784940366689_profile.pdf",
