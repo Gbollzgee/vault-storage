@@ -1,6 +1,19 @@
 {
   "files": [
     {
+      "id": "f_1786302390744_my387i",
+      "name": "file_00000000bb8c81f4ab4a78844fc6bc07.png",
+      "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1786302390744_file_00000000bb8c81f4ab4a78844fc6bc07.png",
+      "ghPath": "files/1786302390744_file_00000000bb8c81f4ab4a78844fc6bc07.png",
+      "ghSha": "7514c4b63a69920cdf187b8afbae0006f1be4b3b",
+      "type": "photo",
+      "mime": "image/png",
+      "size": 1963613,
+      "comment": "",
+      "folderId": null,
+      "createdAt": 1786302390744
+    },
+    {
       "id": "f_1785024363053_8o88lv",
       "name": "thumbnail.jpeg",
       "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1785024363053_thumbnail.jpeg",
