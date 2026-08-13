@@ -1,6 +1,19 @@
 {
   "files": [
     {
+      "id": "f_1786614989157_ehvig6",
+      "name": "MYCHA_AI_Presentation.pptx",
+      "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1786614989157_MYCHA_AI_Presentation.pptx",
+      "ghPath": "files/1786614989157_MYCHA_AI_Presentation.pptx",
+      "ghSha": "f084ef955c87978c06f62fd174f38fb7ee3b0780",
+      "type": "doc",
+      "mime": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "size": 1092044,
+      "comment": "",
+      "folderId": null,
+      "createdAt": 1786614989157
+    },
+    {
       "id": "f_1786302390744_my387i",
       "name": "file_00000000bb8c81f4ab4a78844fc6bc07.png",
       "url": "https://raw.githubusercontent.com/Gbollzgee/vault-storage/main/files/1786302390744_file_00000000bb8c81f4ab4a78844fc6bc07.png",
